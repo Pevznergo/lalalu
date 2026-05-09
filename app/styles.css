@@ -1,13 +1,13 @@
 :root {
   color-scheme: light;
-  --bg: #f7f4ef;
-  --ink: #1f2522;
-  --muted: #66706b;
-  --line: #d9d2c7;
-  --surface: #fffdf8;
-  --accent: #d94141;
-  --accent-dark: #a72c2c;
-  --green: #277a55;
+  --bg: #f8efe6;
+  --ink: #2d2825;
+  --muted: #8d7f73;
+  --line: #eadfce;
+  --surface: #ffffff;
+  --accent: #ff6a57;
+  --accent-dark: #f25845;
+  --green: #2a7a57;
 }
 
 * {
@@ -26,9 +26,11 @@ a {
 }
 
 .page {
-  width: min(1040px, calc(100% - 32px));
+  width: 100%;
   margin: 0 auto;
-  padding: 24px 0 56px;
+  min-height: 100vh;
+  padding: 24px 28px 36px;
+  background: var(--bg);
 }
 
 .topbar {
@@ -36,40 +38,57 @@ a {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 12px 0 20px;
+  padding: 6px 2px 18px;
 }
 
 .brand {
-  font-size: 22px;
-  font-weight: 800;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: -.03em;
 }
 
 .nav {
   display: flex;
-  gap: 12px;
+  gap: 18px;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 13px;
+}
+
+.profile-button {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-left: auto;
+  border: 1px solid #e6ddd1;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .8), 0 2px 6px rgba(0, 0, 0, .04);
+}
+
+.profile-icon {
+  font-size: 28px;
+  line-height: 1;
 }
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
-  gap: 24px;
-  align-items: start;
+  place-items: center;
+  gap: 18px;
+  padding-top: 34px;
+  text-align: center;
 }
 
-.panel,
-.card {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 20px;
+.hero-center {
+  width: min(980px, 100%);
+  margin: 0 auto;
 }
 
 h1 {
-  font-size: clamp(32px, 7vw, 62px);
-  line-height: 1;
-  margin: 12px 0 16px;
+  max-width: 700px;
+  font-size: clamp(34px, 4.8vw, 68px);
+  line-height: .95;
+  margin: 8px 0 6px;
   letter-spacing: 0;
 }
 
@@ -86,6 +105,18 @@ p {
   color: var(--muted);
 }
 
+.hero-kicker {
+  margin: 0;
+  font-size: 14px;
+}
+
+.hero-subtitle {
+  max-width: 640px;
+  margin: 0;
+  font-size: 18px;
+  color: #7f7266;
+}
+
 .grid {
   display: grid;
   gap: 14px;
@@ -94,15 +125,102 @@ p {
 .starter-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  gap: 12px;
+  width: min(780px, 100%);
+  margin: 18px auto 0;
 }
 
-.starter {
+.starter-card {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 18px;
+  min-height: 250px;
+  padding: 18px;
+  border: 1px solid #eee3d3;
+  border-radius: 28px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(94, 67, 42, .06);
+  text-align: left;
+  cursor: pointer;
+}
+
+.starter-emoji {
+  align-self: end;
+  margin-left: auto;
+  font-size: 44px;
+}
+
+.starter-card strong {
+  margin-top: auto;
+  font-size: 22px;
+  line-height: 1.02;
+}
+
+.hero-divider {
+  margin: 56px 0 0;
+  color: #ada19a;
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: .06em;
+}
+
+.input-shell {
+  display: grid;
+  grid-template-columns: 1fr 68px 68px;
+  gap: 10px;
+  align-items: center;
+  width: min(820px, 100%);
+  margin: 44px auto 0;
+  padding: 16px 18px;
+  border: 1px solid #d9cbbb;
+  border-radius: 26px;
+  background: #fff;
+  box-shadow: 0 14px 36px rgba(102, 74, 42, .12);
+}
+
+.input-shell input {
+  min-width: 0;
+  border: 0;
+  padding: 10px 10px 10px 8px;
+  font-size: 18px;
+  outline: none;
+  background: transparent;
+}
+
+.mic-button,
+.send-button {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 1px solid #f1b0a5;
+  border-radius: 14px;
+  background: #fff;
+  color: var(--accent);
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.send-button {
+  border: 0;
+  background: #d7d6d4;
+  color: #fff;
+}
+
+.hero-footer {
+  margin: 26px 0 0;
+  color: #9b8f83;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.panel,
+.card {
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 10px;
-  background: #fff;
-  font-size: 14px;
+  padding: 20px;
 }
 
 label {
@@ -176,10 +294,6 @@ pre {
 }
 
 @media (max-width: 800px) {
-  .hero {
-    grid-template-columns: 1fr;
-  }
-
   .starter-grid {
     grid-template-columns: 1fr;
   }
@@ -187,5 +301,22 @@ pre {
   .topbar {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .profile-button {
+    align-self: flex-end;
+  }
+
+  .input-shell {
+    grid-template-columns: 1fr 56px 56px;
+    width: 100%;
+  }
+
+  .starter-card {
+    min-height: 190px;
+  }
+
+  .hero-subtitle {
+    font-size: 16px;
   }
 }

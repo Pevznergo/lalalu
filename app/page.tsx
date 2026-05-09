@@ -9,49 +9,79 @@ export default function HomePage() {
           <Link href="/my-songs">My Songs</Link>
           <Link href="/admin">Admin</Link>
         </nav>
+        <Link className="profile-button" href="/my-songs" aria-label="Account">
+          <span className="profile-icon">◉</span>
+        </Link>
       </header>
 
-      <section className="hero">
-        <div>
-          <p className="muted">A custom birthday song in minutes</p>
-          <h1>Create a personal song gift</h1>
-          <p>
-            Tell us who the song is for, what memories matter, and the words
-            you want to keep. First you get a draft, then you can generate two
-            MP3 versions.
-          </p>
-          <div className="starter-grid">
-            <div className="starter">Heartfelt</div>
-            <div className="starter">Playful</div>
-            <div className="starter">Energetic</div>
-          </div>
+      <section className="hero hero-center">
+        <p className="muted hero-kicker">2M+ songs created</p>
+        <h1>Let&apos;s make a song.</h1>
+        <p className="hero-subtitle">
+          Choose a vibe below or describe it in your own words. We&apos;ll draft
+          the song, then you can generate two MP3 versions.
+        </p>
+
+        <div className="starter-grid">
+          <button className="starter-card" type="button">
+            <span className="starter-emoji" aria-hidden="true">
+              🎂
+            </span>
+            <strong>Birthday</strong>
+          </button>
+          <button className="starter-card" type="button">
+            <span className="starter-emoji" aria-hidden="true">
+              ❤️
+            </span>
+            <strong>Love</strong>
+          </button>
+          <button className="starter-card" type="button">
+            <span className="starter-emoji" aria-hidden="true">
+              💍
+            </span>
+            <strong>Wedding</strong>
+          </button>
+          <button className="starter-card" type="button">
+            <span className="starter-emoji" aria-hidden="true">
+              😂
+            </span>
+            <strong>Funny</strong>
+          </button>
+          <button className="starter-card" type="button">
+            <span className="starter-emoji" aria-hidden="true">
+              💪
+            </span>
+            <strong>Hype</strong>
+          </button>
+          <button className="starter-card" type="button">
+            <span className="starter-emoji" aria-hidden="true">
+              🎉
+            </span>
+            <strong>Party</strong>
+          </button>
         </div>
 
-        <form className="panel" action="/api/drafts" method="post">
-          <div className="grid">
-            <label>
-              Who is the song for?
-              <input name="recipient" placeholder="For example, Anna" required />
-            </label>
-            <label>
-              Who is it from?
-              <input name="sender" placeholder="From family, friends, or coworkers" />
-            </label>
-            <label>
-              Story and notes
-              <textarea
-                name="story"
-                placeholder="Age, personality, shared memories, inside jokes, important words, name pronunciation"
-                required
-              />
-            </label>
-            <button type="submit">Build a song draft</button>
-            <p className="muted">
-              Early users get generation access through private beta promo
-              codes. Real payments are still disabled.
-            </p>
-          </div>
+        <p className="hero-divider">or</p>
+
+        <form className="input-shell" action="/api/drafts" method="post">
+          <input
+            name="story"
+            placeholder="Describe the song idea..."
+            aria-label="Describe the song idea"
+            required
+          />
+          <button className="mic-button" type="button" aria-label="Record voice note">
+            <span aria-hidden="true">🎙</span>
+          </button>
+          <button className="send-button" type="submit" aria-label="Build a song draft">
+            ↑
+          </button>
         </form>
+
+        <p className="hero-footer">
+          Terms of Service and Privacy Policy. Built for personalized song
+          generation.
+        </p>
       </section>
     </main>
   );
