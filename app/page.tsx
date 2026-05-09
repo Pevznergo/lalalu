@@ -186,10 +186,10 @@ export default function HomePage() {
           ))}
         </div>
 
-        <div className={`starter-stack ${step !== "topic" ? "starter-stack-small" : ""}`}>
+        {step === "topic" ? (
           <div className="starter-grid starter-grid-topics" aria-label="Song ideas">
             {topics.map(({ emoji, label }) => (
-              <button key={label} className={`starter-card ${topic === label ? "starter-card-selected" : ""}`} type="button" onClick={() => pickTopic(label)}>
+              <button key={label} className="starter-card" type="button" onClick={() => pickTopic(label)}>
                 <span className="starter-emoji" aria-hidden="true">
                   {emoji}
                 </span>
@@ -197,10 +197,12 @@ export default function HomePage() {
               </button>
             ))}
           </div>
+        ) : null}
 
+        {step === "style" ? (
           <div className="starter-grid starter-grid-styles" aria-label="Song styles">
             {styles.map(({ emoji, label }) => (
-              <button key={label} className={`starter-card starter-card-style ${style === label ? "starter-card-selected" : ""}`} type="button" onClick={() => pickStyle(label)}>
+              <button key={label} className="starter-card starter-card-style" type="button" onClick={() => pickStyle(label)}>
                 <span className="starter-emoji" aria-hidden="true">
                   {emoji}
                 </span>
@@ -208,9 +210,9 @@ export default function HomePage() {
               </button>
             ))}
           </div>
-        </div>
+        ) : null}
 
-        <p className="hero-divider">or</p>
+        {step !== "topic" ? <p className="hero-divider">or</p> : null}
 
         <form ref={formRef} className="input-shell" action="/api/drafts" method="post">
           <input
