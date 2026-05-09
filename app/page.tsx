@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Step = "topic" | "style" | "chat" | "typing";
 type Role = "assistant" | "user";
@@ -10,6 +10,8 @@ type Message = {
   id: string;
   role: Role;
   text: string;
+  typing?: boolean;
+  revealText?: string;
 };
 
 const topics = [
@@ -32,6 +34,7 @@ const styles = [
 
 export default function HomePage() {
   const formRef = useRef<HTMLFormElement>(null);
+  const timerRefs = useRef<number[]>([]);
   const [step, setStep] = useState<Step>("topic");
   const [topic, setTopic] = useState("");
   const [style, setStyle] = useState("");
@@ -45,14 +48,41 @@ export default function HomePage() {
   ]);
   const [showNewSongConfirm, setShowNewSongConfirm] = useState(false);
 
-  const assistantPrompt = useMemo(() => {
-    if (step === "topic") return "Let's make a song. What should it be about?";
-    if (step === "style") return "Now choose a style, or just tell me what you feel.";
-    return "Tell me a few details and I'll turn them into lyrics.";
-  }, [step]);
+  useEffect(() => () => {
+    timerRefs.current.forEach((timer) => window.clearTimeout(timer));
+    timerRefs.current = [];
+  }, []);
 
-  function pushAssistant(text: string) {
-    setMessages((current) => [...current, { id: crypto.randomUUID(), role: "assistant", text }]);
+  function pushAssistant(text: string, typingMs = 900, revealMs = 600) {
+    const typingId = crypto.randomUUID();
+    const replyId = crypto.randomUUID();
+    setMessages((current) => [
+      ...current,
+      { id: typingId, role: "assistant", text: "Thinking...", typing: true }
+    ]);
+    const timer = window.setTimeout(() => {
+      setMessages((current) => current.map((message) => (
+        message.id === typingId ? { ...message, typing: false, text: "" } : message
+      )).concat({
+        id: replyId,
+        role: "assistant",
+        text: "",
+        revealText: ""
+      }));
+
+      const chars = Array.from(text);
+      chars.forEach((_, index) => {
+        const charTimer = window.setTimeout(() => {
+          setMessages((current) => current.map((message) => {
+            if (message.id !== replyId) return message;
+            const nextText = chars.slice(0, index + 1).join("");
+            return { ...message, revealText: nextText, text: nextText };
+          }));
+        }, Math.max(30, Math.floor(revealMs / Math.max(chars.length, 1))) * (index + 1));
+        timerRefs.current.push(charTimer);
+      });
+    }, typingMs);
+    timerRefs.current.push(timer);
   }
 
   function pushUser(text: string) {
@@ -72,7 +102,7 @@ export default function HomePage() {
     setStory(nextTopic);
     setStep("style");
     pushUser(nextTopic);
-    pushAssistant("Now choose a style, or just tell me what you feel.");
+    pushAssistant("Now choose a style, or just tell me what you feel.", 1000, 700);
   }
 
   function pickStyle(nextStyle: string) {
@@ -81,7 +111,7 @@ export default function HomePage() {
     setStory(nextStory);
     setStep("chat");
     pushUser(nextStyle);
-    pushAssistant("Now tell me a few details. Who is it for? What should it say?");
+    pushAssistant("Now tell me a few details. Who is it for? What should it say?", 1100, 820);
   }
 
   function submitStory(nextStory: string) {
@@ -89,7 +119,7 @@ export default function HomePage() {
     setStory(nextStory);
     setStep("typing");
     pushUser(nextStory);
-    pushAssistant("Got it. I'm shaping the draft now... 🎶");
+    pushAssistant("Got it. I&apos;m shaping the draft now... 🎶", 1400, 950);
     requestAnimationFrame(() => formRef.current?.requestSubmit());
   }
 
@@ -135,9 +165,11 @@ export default function HomePage() {
       ) : null}
 
       <section className={`hero hero-center step-${step}`}>
-        <div className="hero-copy">
-          <h1>{assistantPrompt}</h1>
-        </div>
+        {step === "topic" ? (
+          <div className="hero-copy">
+            <p className="hero-intro">Let&apos;s make a song. What should it be about?</p>
+          </div>
+        ) : null}
 
         <div className="selected-row" aria-live="polite">
           {topic ? <span className="selected-chip">{topic}</span> : null}
@@ -147,15 +179,17 @@ export default function HomePage() {
         <div className="chat-panel">
           {messages.map((message) => (
             <div key={message.id} className={`chat-row chat-row-${message.role}`}>
-              <div className={`chat-bubble chat-bubble-${message.role}`}>{message.text}</div>
+              <div className={`chat-bubble chat-bubble-${message.role} ${message.typing ? "chat-bubble-typing" : ""}`}>
+                {message.typing ? <span className="typing-dots" aria-label="Typing">⋯</span> : (message.revealText ?? message.text)}
+              </div>
             </div>
           ))}
         </div>
 
-        {step === "topic" ? (
+        <div className={`starter-stack ${step !== "topic" ? "starter-stack-small" : ""}`}>
           <div className="starter-grid starter-grid-topics" aria-label="Song ideas">
             {topics.map(({ emoji, label }) => (
-              <button key={label} className="starter-card" type="button" onClick={() => pickTopic(label)}>
+              <button key={label} className={`starter-card ${topic === label ? "starter-card-selected" : ""}`} type="button" onClick={() => pickTopic(label)}>
                 <span className="starter-emoji" aria-hidden="true">
                   {emoji}
                 </span>
@@ -163,12 +197,10 @@ export default function HomePage() {
               </button>
             ))}
           </div>
-        ) : null}
 
-        {step === "style" ? (
           <div className="starter-grid starter-grid-styles" aria-label="Song styles">
             {styles.map(({ emoji, label }) => (
-              <button key={label} className="starter-card starter-card-style" type="button" onClick={() => pickStyle(label)}>
+              <button key={label} className={`starter-card starter-card-style ${style === label ? "starter-card-selected" : ""}`} type="button" onClick={() => pickStyle(label)}>
                 <span className="starter-emoji" aria-hidden="true">
                   {emoji}
                 </span>
@@ -176,9 +208,9 @@ export default function HomePage() {
               </button>
             ))}
           </div>
-        ) : null}
+        </div>
 
-        {step !== "topic" ? <p className="hero-divider">or</p> : null}
+        <p className="hero-divider">or</p>
 
         <form ref={formRef} className="input-shell" action="/api/drafts" method="post">
           <input
