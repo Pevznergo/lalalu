@@ -3,31 +3,31 @@ import type { LyricsProvider } from "@/core/types";
 export const mockLyricsProvider: LyricsProvider = {
   async createDraft({ messages }) {
     const last = messages.at(-1)?.content ?? "";
-    const recipient = extractRecipient(last) ?? "именинник";
-    const title = `Песня для ${recipient}`;
-    const lyrics = `[Куплет 1]
-Сегодня день, где свет теплей,
-И все слова звучат добрей.
-${recipient}, пусть этот новый год
-Тебе удачу принесёт.
+    const recipient = extractRecipient(last) ?? "the birthday guest";
+    const title = `Song for ${recipient}`;
+    const lyrics = `[Verse 1]
+Today feels a little brighter,
+Every word a little kinder.
+${recipient}, this one is made for you,
+With all the things we want to say and do.
 
-[Припев]
-С днём рождения, пусть сердце поёт,
-Пусть каждый день тебя к мечтам ведёт.
-Мы рядом, мы любим, и это твой час,
-Эта песня сегодня звучит только для нас.
+[Chorus]
+Happy birthday, let your heart sing loud,
+Let every day lift you above the crowd.
+We are here, we care, and this is your song,
+A little piece of love to carry along.
 
-[Куплет 2]
-Пусть будут рядом смех и друзья,
-Пусть дом согреет любовь и семья.
-Пусть всё, что важно, получится вновь,
-И в каждом деле живёт любовь.
+[Verse 2]
+May laughter stay close, may your people stay near,
+May home feel warm and every path feel clear.
+May all the things that matter come true,
+And may the best days keep finding you.
 
-[Куплет 3]
-Запомним этот радостный миг,
-Где каждый голос к поздравлению привык.
-Пусть впереди будет светлый маршрут,
-И добрые песни тебя берегут.`;
+[Verse 3]
+We will remember this moment today,
+The smiles, the lights, the words we say.
+May the road ahead be kind and bright,
+And this song hold you through the night.`;
 
     return {
       title,
@@ -40,6 +40,6 @@ ${recipient}, пусть этот новый год
 };
 
 function extractRecipient(input: string) {
-  const match = input.match(/(?:для|кому|имя)[:\s]+([А-ЯA-ZЁ][а-яa-zё]+)/i);
+  const match = input.match(/(?:for|who|name)[:\s]+([A-Z][a-z]+)/i);
   return match?.[1];
 }

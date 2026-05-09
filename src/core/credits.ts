@@ -50,7 +50,7 @@ export async function reserveCreditForGeneration(input: {
       reserved.reduce((sum, row) => sum + row.creditsReserved, 0);
 
     if (balance < 1) {
-      throw new AppError("CREDIT_RESERVATION_CONFLICT", "Недостаточно песен на балансе");
+      throw new AppError("CREDIT_RESERVATION_CONFLICT", "Not enough songs left in the balance");
     }
 
     const existing = await tx.creditReservation.findUnique({

@@ -16,20 +16,20 @@ export default async function MySongsPage() {
   return (
     <main className="page">
       <header className="topbar">
-        <div className="brand">Мои песни</div>
+        <div className="brand">My Songs</div>
         <Link className="button secondary" href="/">
-          Создать песню
+          Create a song
         </Link>
       </header>
       <div className="grid">
         {jobs.length === 0 ? (
-          <div className="panel">Песен пока нет.</div>
+          <div className="panel">No songs yet.</div>
         ) : (
           jobs.map((job) => (
             <article className="card" key={job.id}>
               <h2>{job.draft.title}</h2>
-              <p className="muted">Статус: {job.status}</p>
-              <p>Версий: {job.tracks.length}</p>
+              <p className="muted">Status: {job.status}</p>
+              <p>Versions: {job.tracks.length}</p>
               {job.tracks.map((track) => (
                 <p key={track.id}>
                   Version {track.variantIndex + 1}: {track.storageKey}

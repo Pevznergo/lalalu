@@ -74,20 +74,20 @@ export async function redeemPromoCode(input: {
       throw new AppError("PROMO_CODE_INVALID");
     }
     if (promo.expiresAt && promo.expiresAt < new Date()) {
-      throw new AppError("PROMO_CODE_INVALID", "Промокод истёк");
+      throw new AppError("PROMO_CODE_INVALID", "Promo code has expired");
     }
     if (promo.redemptions.length >= promo.maxRedemptions) {
-      throw new AppError("PROMO_CODE_INVALID", "Промокод уже исчерпан");
+      throw new AppError("PROMO_CODE_INVALID", "Promo code has been fully redeemed");
     }
     const userRedemptions = promo.redemptions.filter((row) => row.userId === input.userId);
     if (userRedemptions.length >= promo.perUserLimit) {
-      throw new AppError("PROMO_CODE_INVALID", "Ты уже использовал этот промокод");
+      throw new AppError("PROMO_CODE_INVALID", "You already used this promo code");
     }
     if (
       promo.allowedEmailDomain &&
       !input.email?.toLowerCase().endsWith(`@${promo.allowedEmailDomain.toLowerCase()}`)
     ) {
-      throw new AppError("PROMO_CODE_INVALID", "Промокод недоступен для этой почты");
+      throw new AppError("PROMO_CODE_INVALID", "Promo code is not available for this email address");
     }
 
     const ledger = await tx.creditLedger.create({

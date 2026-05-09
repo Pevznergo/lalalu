@@ -17,28 +17,28 @@ export default async function AdminPage() {
   return (
     <main className="page">
       <header className="topbar">
-        <div className="brand">Админка</div>
+        <div className="brand">Admin</div>
         <Link className="button secondary" href="/">
-          На сайт
+          Back to site
         </Link>
       </header>
       <section className="hero">
         <form className="panel" action="/api/admin/promo" method="post">
-          <h2>Создать промокод</h2>
+          <h2>Create promo code</h2>
           <div className="grid">
             <label>
-              Кампания
+              Campaign
               <input name="campaign" defaultValue="BETA_BIRTHDAY_2026" />
             </label>
             <label>
-              Кредитов
+              Credits
               <input name="credits" type="number" min="1" defaultValue="3" />
             </label>
             <label>
-              Максимум активаций
+              Maximum redemptions
               <input name="maxRedemptions" type="number" min="1" defaultValue="100" />
             </label>
-            <button type="submit">Сгенерировать</button>
+            <button type="submit">Generate</button>
           </div>
         </form>
         <div className="panel">

@@ -16,7 +16,7 @@ export async function POST(request: Request) {
 
   const draft = await createBirthdayDraft({
     userId: user.id,
-    story: `Песня для ${recipient}. От кого: ${sender}. Детали: ${story}`
+    story: `Song for ${recipient}. From: ${sender}. Details: ${story}`
   });
 
   redirect(`/api/generate?draftId=${draft.id}`);

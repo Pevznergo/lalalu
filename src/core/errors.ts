@@ -1,42 +1,42 @@
 export const errorCatalog = {
   DRAFT_JSON_INVALID: {
-    message: "Не удалось обновить черновик, попробуй ещё раз",
+    message: "Could not update the draft, try again",
     severity: "warn"
   },
   PAYMENT_SIGNATURE_INVALID: {
-    message: "Платёж не подтверждён",
+    message: "Payment not confirmed",
     severity: "critical"
   },
   PAYMENT_AMOUNT_MISMATCH: {
-    message: "Платёж проверяется поддержкой",
+    message: "Payment is under review",
     severity: "critical"
   },
   PROMO_CODE_INVALID: {
-    message: "Промокод не подходит или уже использован",
+    message: "Promo code is invalid or already used",
     severity: "info"
   },
   ADMIN_PERMISSION_DENIED: {
-    message: "Недостаточно прав",
+    message: "Not enough permissions",
     severity: "critical"
   },
   CREDIT_RESERVATION_CONFLICT: {
-    message: "Баланс изменился, обнови страницу",
+    message: "Balance changed, refresh the page",
     severity: "warn"
   },
   PROVIDER_SUBMIT_FAILED: {
-    message: "Не удалось начать генерацию",
+    message: "Could not start generation",
     severity: "error"
   },
   S3_COPY_FAILED: {
-    message: "Песня готовится дольше обычного",
+    message: "Song is taking longer than usual",
     severity: "error"
   },
   QUALITY_GATE_FAILED: {
-    message: "Одна версия песни не прошла проверку",
+    message: "One song version failed validation",
     severity: "error"
   },
   JOB_STUCK: {
-    message: "Мы ещё работаем над песней",
+    message: "We are still working on the song",
     severity: "error"
   }
 } as const;

@@ -4,51 +4,51 @@ export default function HomePage() {
   return (
     <main className="page">
       <header className="topbar">
-        <div className="brand">lalalu</div>
+        <div className="brand">lalelu</div>
         <nav className="nav">
-          <Link href="/my-songs">Мои песни</Link>
-          <Link href="/admin">Админка</Link>
+          <Link href="/my-songs">My Songs</Link>
+          <Link href="/admin">Admin</Link>
         </nav>
       </header>
 
       <section className="hero">
         <div>
-          <p className="muted">Песня на день рождения за несколько минут</p>
-          <h1>Собери личную песню в подарок</h1>
+          <p className="muted">A custom birthday song in minutes</p>
+          <h1>Create a personal song gift</h1>
           <p>
-            Расскажи, кому делаем песню, какие воспоминания и слова важно
-            сохранить. Сначала получишь текст, потом сможешь сгенерировать две
-            MP3-версии.
+            Tell us who the song is for, what memories matter, and the words
+            you want to keep. First you get a draft, then you can generate two
+            MP3 versions.
           </p>
           <div className="starter-grid">
-            <div className="starter">Трогательно</div>
-            <div className="starter">С юмором</div>
-            <div className="starter">Энергично</div>
+            <div className="starter">Heartfelt</div>
+            <div className="starter">Playful</div>
+            <div className="starter">Energetic</div>
           </div>
         </div>
 
         <form className="panel" action="/api/drafts" method="post">
           <div className="grid">
             <label>
-              Кому песня?
-              <input name="recipient" placeholder="Например, Анне" required />
+              Who is the song for?
+              <input name="recipient" placeholder="For example, Anna" required />
             </label>
             <label>
-              От кого подарок?
-              <input name="sender" placeholder="От семьи, друзей, коллег" />
+              Who is it from?
+              <input name="sender" placeholder="From family, friends, or coworkers" />
             </label>
             <label>
-              История и пожелания
+              Story and notes
               <textarea
                 name="story"
-                placeholder="Возраст, характер, общие воспоминания, шутки, важные слова, произношение имён"
+                placeholder="Age, personality, shared memories, inside jokes, important words, name pronunciation"
                 required
               />
             </label>
-            <button type="submit">Собрать черновик песни</button>
+            <button type="submit">Build a song draft</button>
             <p className="muted">
-              Для первых пользователей генерация доступна по промокодам из
-              закрытой беты. Реальные платежи пока выключены.
+              Early users get generation access through private beta promo
+              codes. Real payments are still disabled.
             </p>
           </div>
         </form>

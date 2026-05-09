@@ -3,13 +3,13 @@ import type { Metadata } from "next";
 import { MixpanelAnalytics } from "./MixpanelAnalytics";
 
 export const metadata: Metadata = {
-  title: "lalalu",
-  description: "Birthday song generator"
+  title: "lalelu",
+  description: "A birthday song generator that turns stories into custom songs."
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ru">
+    <html lang="en">
       <body>
         <MixpanelAnalytics />
         {children}

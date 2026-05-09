@@ -20,7 +20,7 @@ async function main() {
 
   const draft = await createBirthdayDraft({
     userId: user.id,
-    story: "Песня для Анны на день рождения от семьи. Трогательно, тепло, с благодарностью."
+    story: "Song for Anna on her birthday from family. Heartfelt, warm, and grateful."
   });
 
   const job = await enqueueGeneration({
