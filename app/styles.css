@@ -33,6 +33,10 @@ a {
   background: var(--bg);
 }
 
+.app-shell {
+  position: relative;
+}
+
 .topbar {
   display: flex;
   align-items: center;
@@ -78,6 +82,24 @@ a {
   transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
 }
 
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ghost-pill {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 2px solid #f07a67;
+  border-radius: 999px;
+  background: transparent;
+  color: #f07a67;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 160ms ease, background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
 .profile-icon {
   font-size: 24px;
   line-height: 1;
@@ -89,6 +111,10 @@ a {
   gap: 10px;
   padding-top: 12px;
   text-align: center;
+}
+
+.step-chat {
+  padding-top: 6px;
 }
 
 .hero-center {
@@ -142,11 +168,16 @@ p {
   margin: 8px auto 0;
 }
 
+.starter-grid-styles {
+  width: min(560px, 100%);
+}
+
 .starter-card {
   display: grid;
   align-content: start;
   justify-items: start;
-  gap: 12px;
+  align-items: start;
+  gap: 10px;
   min-height: 162px;
   padding: 14px;
   border: 1px solid #e9dcc7;
@@ -170,6 +201,18 @@ p {
   font-size: 17px;
   line-height: 1.02;
   color: #1e1c1a;
+  text-align: left;
+}
+
+.starter-card-style {
+  min-height: 86px;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+.starter-card-style .starter-emoji {
+  align-self: center;
+  margin-left: 0;
 }
 
 .hero-divider {
@@ -273,6 +316,112 @@ button:focus-visible,
   color: #111;
 }
 
+.starter-card strong,
+.starter-card span,
+.ghost-pill,
+.confirm-primary,
+.confirm-secondary,
+.selected-chip {
+  font-feature-settings: "kern" 1;
+  letter-spacing: 0;
+}
+
+.selected-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+}
+
+.selected-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: #f07a67;
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.selected-chip-muted {
+  background: #fff;
+  color: #2d2825;
+  border: 1px solid #e5d6c4;
+}
+
+.confirm-modal {
+  position: relative;
+  width: min(430px, calc(100vw - 32px));
+  padding: 28px 24px 22px;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 28px 80px rgba(61, 42, 25, .24);
+}
+
+.confirm-modal h2 {
+  margin: 0 0 20px;
+  font-size: 28px;
+  line-height: 1.06;
+  letter-spacing: -.03em;
+}
+
+.confirm-primary,
+.confirm-secondary {
+  display: grid;
+  width: 100%;
+  min-height: 62px;
+  place-items: center;
+  border-radius: 14px;
+  border: 0;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease, color 160ms ease;
+}
+
+.confirm-primary {
+  margin-bottom: 12px;
+  background: #ef7a66;
+  color: #fff;
+}
+
+.confirm-secondary {
+  background: #fff;
+  color: #7b6f66;
+  border: 2px solid #e0e4ea;
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  border: 0;
+  background: transparent;
+  color: #666;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  background: rgba(46, 36, 26, .38);
+  backdrop-filter: blur(2px);
+}
+
+.confirm-modal button:active,
+.ghost-pill:active,
+.confirm-primary:active,
+.confirm-secondary:active {
+  transform: translateY(1px) scale(.99);
+}
+
 .hero-footer {
   margin: 14px 0 0;
   color: #9b8f83;
@@ -360,17 +509,17 @@ pre {
 }
 
 @media (max-width: 800px) {
-  .starter-grid {
-    grid-template-columns: 1fr;
-  }
-
   .topbar {
     align-items: flex-start;
     flex-direction: column;
   }
 
-  .profile-button {
+  .topbar-actions {
     align-self: flex-end;
+  }
+
+  .starter-grid {
+    grid-template-columns: 1fr;
   }
 
   .input-shell {
@@ -380,6 +529,10 @@ pre {
 
   .starter-card {
     min-height: 150px;
+  }
+
+  .starter-card-style {
+    min-height: 72px;
   }
 
   .hero-subtitle {
