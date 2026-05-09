@@ -1,9 +1,16 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useMemo, useRef, useState } from "react";
 
-type Step = "topic" | "style" | "chat";
+type Step = "topic" | "style" | "chat" | "typing";
+type Role = "assistant" | "user";
+
+type Message = {
+  id: string;
+  role: Role;
+  text: string;
+};
 
 const topics = [
   { emoji: "🎂", label: "Birthday" },
@@ -20,9 +27,7 @@ const styles = [
   { emoji: "🤘", label: "Rock" },
   { emoji: "🎧", label: "Electronic" },
   { emoji: "🪕", label: "Folk" },
-  { emoji: "🌼", label: "Indie" },
-  { emoji: "🪩", label: "80s" },
-  { emoji: "🎻", label: "Classical" }
+  { emoji: "🌼", label: "Indie" }
 ];
 
 export default function HomePage() {
@@ -31,22 +36,43 @@ export default function HomePage() {
   const [topic, setTopic] = useState("");
   const [style, setStyle] = useState("");
   const [story, setStory] = useState("");
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: "a0",
+      role: "assistant",
+      text: "Let's make a song. What should it be about?"
+    }
+  ]);
   const [showNewSongConfirm, setShowNewSongConfirm] = useState(false);
 
-  const assistantText = useMemo(() => {
-    if (step === "topic") {
-      return "Let's make a song. What should it be about?";
-    }
-    if (step === "style") {
-      return "Now choose a style, or just tell me what you feel.";
-    }
-    return "Write a few details and I'll turn it into a draft.";
+  const assistantPrompt = useMemo(() => {
+    if (step === "topic") return "Let's make a song. What should it be about?";
+    if (step === "style") return "Now choose a style, or just tell me what you feel.";
+    return "Tell me a few details and I'll turn them into lyrics.";
   }, [step]);
+
+  function pushAssistant(text: string) {
+    setMessages((current) => [...current, { id: crypto.randomUUID(), role: "assistant", text }]);
+  }
+
+  function pushUser(text: string) {
+    setMessages((current) => [...current, { id: crypto.randomUUID(), role: "user", text }]);
+  }
+
+  function resetFlow() {
+    setStep("topic");
+    setTopic("");
+    setStyle("");
+    setStory("");
+    setMessages([{ id: "a0", role: "assistant", text: "Let's make a song. What should it be about?" }]);
+  }
 
   function pickTopic(nextTopic: string) {
     setTopic(nextTopic);
     setStory(nextTopic);
     setStep("style");
+    pushUser(nextTopic);
+    pushAssistant("Now choose a style, or just tell me what you feel.");
   }
 
   function pickStyle(nextStyle: string) {
@@ -54,10 +80,16 @@ export default function HomePage() {
     const nextStory = topic ? `${topic}. Style: ${nextStyle}` : `Style: ${nextStyle}`;
     setStory(nextStory);
     setStep("chat");
+    pushUser(nextStyle);
+    pushAssistant("Now tell me a few details. Who is it for? What should it say?");
   }
 
   function submitStory(nextStory: string) {
+    if (!nextStory.trim()) return;
     setStory(nextStory);
+    setStep("typing");
+    pushUser(nextStory);
+    pushAssistant("Got it. I'm shaping the draft now... 🎶");
     requestAnimationFrame(() => formRef.current?.requestSubmit());
   }
 
@@ -90,10 +122,7 @@ export default function HomePage() {
               type="button"
               onClick={() => {
                 setShowNewSongConfirm(false);
-                setStep("topic");
-                setTopic("");
-                setStyle("");
-                setStory("");
+                resetFlow();
               }}
             >
               New song
@@ -107,12 +136,20 @@ export default function HomePage() {
 
       <section className={`hero hero-center step-${step}`}>
         <div className="hero-copy">
-          <h1>{assistantText}</h1>
+          <h1>{assistantPrompt}</h1>
         </div>
 
         <div className="selected-row" aria-live="polite">
           {topic ? <span className="selected-chip">{topic}</span> : null}
           {style ? <span className="selected-chip selected-chip-muted">{style}</span> : null}
+        </div>
+
+        <div className="chat-panel">
+          {messages.map((message) => (
+            <div key={message.id} className={`chat-row chat-row-${message.role}`}>
+              <div className={`chat-bubble chat-bubble-${message.role}`}>{message.text}</div>
+            </div>
+          ))}
         </div>
 
         {step === "topic" ? (
@@ -141,9 +178,7 @@ export default function HomePage() {
           </div>
         ) : null}
 
-        {step !== "topic" ? (
-          <p className="hero-divider">or</p>
-        ) : null}
+        {step !== "topic" ? <p className="hero-divider">or</p> : null}
 
         <form ref={formRef} className="input-shell" action="/api/drafts" method="post">
           <input

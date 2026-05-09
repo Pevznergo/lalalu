@@ -117,6 +117,10 @@ a {
   padding-top: 6px;
 }
 
+.step-typing .hero-copy h1 {
+  opacity: .78;
+}
+
 .hero-center {
   width: min(980px, 100%);
   margin: 0 auto;
@@ -213,6 +217,45 @@ p {
 .starter-card-style .starter-emoji {
   align-self: center;
   margin-left: 0;
+}
+
+.chat-panel {
+  display: grid;
+  gap: 10px;
+  width: min(620px, 100%);
+  margin: 10px auto 0;
+  min-height: 112px;
+}
+
+.chat-row {
+  display: flex;
+}
+
+.chat-row-user {
+  justify-content: flex-end;
+}
+
+.chat-row-assistant {
+  justify-content: flex-start;
+}
+
+.chat-bubble {
+  max-width: min(520px, 100%);
+  padding: 11px 14px;
+  border-radius: 14px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .8);
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.chat-bubble-assistant {
+  background: #fff;
+  color: #231f1c;
+}
+
+.chat-bubble-user {
+  background: #f2634f;
+  color: #fff;
 }
 
 .hero-divider {
