@@ -1,4 +1,5 @@
 import { db } from "@/core/db";
+import { config } from "@/core/config";
 import { captureReservation } from "@/core/credits";
 import { sha256 } from "@/core/hash";
 import { getMusicProvider } from "@/providers";
@@ -17,7 +18,7 @@ export async function processGenerationJob(jobId: string) {
 
   await db.generationJob.update({
     where: { id: job.id },
-    data: { status: "provider_submitted", provider: "mock" }
+    data: { status: "provider_submitted", provider: config.musicProvider }
   });
 
   const providerTask = await music.submitSong({
@@ -31,7 +32,7 @@ export async function processGenerationJob(jobId: string) {
   await db.generationAttempt.create({
     data: {
       generationJobId: job.id,
-      provider: "mock",
+      provider: config.musicProvider,
       requestHash: sha256(`${job.id}:${job.draft.lyrics}:${job.draft.style}`),
       providerTaskId: providerTask.providerTaskId,
       status: "submitted",
@@ -51,7 +52,15 @@ export async function processGenerationJob(jobId: string) {
   });
 
   const tracks = await music.getMockTracks?.(providerTask.providerTaskId);
-  if (!tracks?.length) {
+  if (!tracks) {
+    return db.generationJob.update({
+      where: { id: job.id },
+      data: { status: "provider_processing" },
+      include: { tracks: true, draft: true }
+    });
+  }
+
+  if (!tracks.length) {
     await db.generationJob.update({
       where: { id: job.id },
       data: { status: "failed", errorCode: "PROVIDER_SUBMIT_FAILED" }

@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
-type Step = "topic" | "style" | "chat" | "typing";
+type Step = "topic" | "style" | "details" | "generating" | "ready" | "error";
 type Role = "assistant" | "user";
 
 type Message = {
@@ -32,43 +32,40 @@ const styles = [
   { emoji: "🌼", label: "Indie" }
 ];
 
+const initialMessage = "Let's make a song. What should it be about?";
+
 export default function HomePage() {
-  const formRef = useRef<HTMLFormElement>(null);
   const timerRefs = useRef<number[]>([]);
   const [step, setStep] = useState<Step>("topic");
   const [topic, setTopic] = useState("");
   const [style, setStyle] = useState("");
-  const [story, setStory] = useState("");
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "a0",
-      role: "assistant",
-      text: "Let's make a song. What should it be about?"
-    }
-  ]);
+  const [details, setDetails] = useState("");
+  const [inputValue, setInputValue] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showNewSongConfirm, setShowNewSongConfirm] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([
+    { id: "a0", role: "assistant", text: initialMessage }
+  ]);
 
   useEffect(() => () => {
     timerRefs.current.forEach((timer) => window.clearTimeout(timer));
     timerRefs.current = [];
   }, []);
 
-  function pushAssistant(text: string, typingMs = 900, revealMs = 600) {
+  function clearTimers() {
+    timerRefs.current.forEach((timer) => window.clearTimeout(timer));
+    timerRefs.current = [];
+  }
+
+  function pushAssistant(text: string, typingMs = 650, revealMs = 620) {
     const typingId = crypto.randomUUID();
     const replyId = crypto.randomUUID();
-    setMessages((current) => [
-      ...current,
-      { id: typingId, role: "assistant", text: "Thinking...", typing: true }
-    ]);
+    setMessages((current) => [...current, { id: typingId, role: "assistant", text: "", typing: true }]);
+
     const timer = window.setTimeout(() => {
-      setMessages((current) => current.map((message) => (
-        message.id === typingId ? { ...message, typing: false, text: "" } : message
-      )).concat({
-        id: replyId,
-        role: "assistant",
-        text: "",
-        revealText: ""
-      }));
+      setMessages((current) => current
+        .filter((message) => message.id !== typingId)
+        .concat({ id: replyId, role: "assistant", text: "", revealText: "" }));
 
       const chars = Array.from(text);
       chars.forEach((_, index) => {
@@ -78,7 +75,7 @@ export default function HomePage() {
             const nextText = chars.slice(0, index + 1).join("");
             return { ...message, revealText: nextText, text: nextText };
           }));
-        }, Math.max(30, Math.floor(revealMs / Math.max(chars.length, 1))) * (index + 1));
+        }, Math.max(18, Math.floor(revealMs / Math.max(chars.length, 1))) * (index + 1));
         timerRefs.current.push(charTimer);
       });
     }, typingMs);
@@ -90,38 +87,109 @@ export default function HomePage() {
   }
 
   function resetFlow() {
+    clearTimers();
     setStep("topic");
     setTopic("");
     setStyle("");
-    setStory("");
-    setMessages([{ id: "a0", role: "assistant", text: "Let's make a song. What should it be about?" }]);
+    setDetails("");
+    setInputValue("");
+    setIsSubmitting(false);
+    setMessages([{ id: "a0", role: "assistant", text: initialMessage }]);
   }
 
-  function pickTopic(nextTopic: string) {
+  function chooseTopic(nextTopic: string) {
+    if (isSubmitting || step !== "topic") return;
     setTopic(nextTopic);
-    setStory(nextTopic);
+    setInputValue("");
     setStep("style");
     pushUser(nextTopic);
-    pushAssistant("Now choose a style, or just tell me what you feel.", 1000, 700);
+    pushAssistant("Choose the sound for it. You can pick a style or type your own.");
   }
 
-  function pickStyle(nextStyle: string) {
+  function chooseStyle(nextStyle: string) {
+    if (isSubmitting || step !== "style") return;
     setStyle(nextStyle);
-    const nextStory = topic ? `${topic}. Style: ${nextStyle}` : `Style: ${nextStyle}`;
-    setStory(nextStory);
-    setStep("chat");
+    setInputValue("");
+    setStep("details");
     pushUser(nextStyle);
-    pushAssistant("Now tell me a few details. Who is it for? What should it say?", 1100, 820);
+    pushAssistant("Tell me who it is for and what the song should say.");
   }
 
-  function submitStory(nextStory: string) {
-    if (!nextStory.trim()) return;
-    setStory(nextStory);
-    setStep("typing");
-    pushUser(nextStory);
-    pushAssistant("Got it. I&apos;m shaping the draft now... 🎶", 1400, 950);
-    requestAnimationFrame(() => formRef.current?.requestSubmit());
+  async function createSong(finalDetails: string) {
+    setIsSubmitting(true);
+    setStep("generating");
+    pushAssistant("Creating the draft and generating two versions now.");
+
+    try {
+      const response = await fetch("/api/drafts", {
+        method: "POST",
+        headers: {
+          "accept": "application/json",
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({
+          topic,
+          style,
+          story: finalDetails
+        })
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error ?? "Song creation failed");
+      }
+
+      const payload = await response.json();
+      const isReady = payload.status === "ready" || payload.status === "partially_ready";
+      setStep("ready");
+      pushAssistant(isReady
+        ? "Your song is ready. Opening your songs now."
+        : "Your song is queued. Opening your songs so you can watch progress.");
+
+      const redirectTimer = window.setTimeout(() => {
+        window.location.href = "/my-songs";
+      }, 900);
+      timerRefs.current.push(redirectTimer);
+    } catch (error) {
+      setStep("error");
+      setIsSubmitting(false);
+      pushAssistant(error instanceof Error ? error.message : "Song creation failed. Try again.");
+    }
   }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const value = inputValue.trim();
+    if (!value || isSubmitting) return;
+
+    pushUser(value);
+    setInputValue("");
+
+    if (step === "topic") {
+      setTopic(value);
+      setStep("style");
+      pushAssistant("Choose the sound for it. You can pick a style or type your own.");
+      return;
+    }
+
+    if (step === "style") {
+      setStyle(value);
+      setStep("details");
+      pushAssistant("Tell me who it is for and what the song should say.");
+      return;
+    }
+
+    if (step === "details" || step === "error") {
+      setDetails(value);
+      void createSong(value);
+    }
+  }
+
+  const inputPlaceholder = step === "topic"
+    ? "Type an idea or pick one..."
+    : step === "style"
+      ? "Type a style or pick one..."
+      : "Add names, mood, story, inside jokes...";
 
   return (
     <main className="page app-shell">
@@ -146,7 +214,7 @@ export default function HomePage() {
             <button className="modal-close" type="button" aria-label="Close" onClick={() => setShowNewSongConfirm(false)}>
               ×
             </button>
-            <h2>Are you sure you want to start a new song?</h2>
+            <h2>Start a new song?</h2>
             <button
               className="confirm-primary"
               type="button"
@@ -165,22 +233,17 @@ export default function HomePage() {
       ) : null}
 
       <section className={`hero hero-center step-${step}`}>
-        {step === "topic" ? (
-          <div className="hero-copy">
-            <p className="hero-intro">Let&apos;s make a song. What should it be about?</p>
-          </div>
-        ) : null}
-
         <div className="selected-row" aria-live="polite">
           {topic ? <span className="selected-chip">{topic}</span> : null}
           {style ? <span className="selected-chip selected-chip-muted">{style}</span> : null}
+          {step === "generating" ? <span className="selected-chip selected-chip-muted">Generating</span> : null}
         </div>
 
-        <div className="chat-panel">
+        <div className="chat-panel" aria-live="polite">
           {messages.map((message) => (
             <div key={message.id} className={`chat-row chat-row-${message.role}`}>
               <div className={`chat-bubble chat-bubble-${message.role} ${message.typing ? "chat-bubble-typing" : ""}`}>
-                {message.typing ? <span className="typing-dots" aria-label="Typing">⋯</span> : (message.revealText ?? message.text)}
+                {message.typing ? <span className="typing-dots" aria-label="Typing">...</span> : (message.revealText ?? message.text)}
               </div>
             </div>
           ))}
@@ -189,7 +252,7 @@ export default function HomePage() {
         {step === "topic" ? (
           <div className="starter-grid starter-grid-topics" aria-label="Song ideas">
             {topics.map(({ emoji, label }) => (
-              <button key={label} className="starter-card" type="button" onClick={() => pickTopic(label)}>
+              <button key={label} className="starter-card" type="button" onClick={() => chooseTopic(label)}>
                 <span className="starter-emoji" aria-hidden="true">
                   {emoji}
                 </span>
@@ -202,7 +265,7 @@ export default function HomePage() {
         {step === "style" ? (
           <div className="starter-grid starter-grid-styles" aria-label="Song styles">
             {styles.map(({ emoji, label }) => (
-              <button key={label} className="starter-card starter-card-style" type="button" onClick={() => pickStyle(label)}>
+              <button key={label} className="starter-card starter-card-style" type="button" onClick={() => chooseStyle(label)}>
                 <span className="starter-emoji" aria-hidden="true">
                   {emoji}
                 </span>
@@ -212,29 +275,24 @@ export default function HomePage() {
           </div>
         ) : null}
 
-        {step !== "topic" ? <p className="hero-divider">or</p> : null}
-
-        <form ref={formRef} className="input-shell" action="/api/drafts" method="post">
+        <form className="input-shell" onSubmit={handleSubmit}>
           <input
-            name="story"
-            value={story}
-            onChange={(event) => setStory(event.target.value)}
-            placeholder={step === "topic" ? "Describe your song idea..." : "Add more details..."}
-            aria-label="Describe your song idea"
+            value={inputValue}
+            onChange={(event) => setInputValue(event.target.value)}
+            placeholder={inputPlaceholder}
+            aria-label="Describe your song"
             autoComplete="off"
-            required
+            disabled={isSubmitting}
           />
-          <button className="mic-button" type="button" aria-label="Record voice note">
+          <button className="mic-button" type="button" aria-label="Record voice note" disabled={isSubmitting}>
             <span aria-hidden="true">🎙</span>
           </button>
-          <button className="send-button" type="button" onClick={() => submitStory(story)} aria-label="Build a song draft">
-            ↑
+          <button className="send-button" type="submit" aria-label="Continue" disabled={isSubmitting}>
+            {isSubmitting ? "…" : "↑"}
           </button>
         </form>
 
-        <p className="hero-footer">
-          Terms of Service and Privacy Policy. Built for personalized song generation.
-        </p>
+        {details ? <p className="hero-footer">Draft details saved. You can start a new song anytime.</p> : null}
       </section>
     </main>
   );

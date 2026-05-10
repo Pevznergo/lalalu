@@ -1,23 +1,35 @@
 import { redirect } from "next/navigation";
-import { db } from "@/core/db";
-import { createBirthdayDraft } from "@/core/drafts";
+import { createSongAndStartGeneration } from "@/core/song-flow";
 
 export async function POST(request: Request) {
-  const form = await request.formData();
-  const recipient = String(form.get("recipient") ?? "");
-  const sender = String(form.get("sender") ?? "");
-  const story = String(form.get("story") ?? "");
+  const contentType = request.headers.get("content-type") ?? "";
+  const wantsJson = request.headers.get("accept")?.includes("application/json");
+  const data = contentType.includes("application/json")
+    ? await request.json()
+    : Object.fromEntries((await request.formData()).entries());
 
-  const user = await db.user.upsert({
-    where: { email: "beta-user@lalalu.local" },
-    create: { email: "beta-user@lalalu.local", displayName: "Beta User" },
-    update: {}
+  const topic = String(data.topic ?? "");
+  const style = String(data.style ?? "");
+  const story = String(data.story ?? "");
+
+  if (!story.trim() && !topic.trim()) {
+    return Response.json({ error: "story required" }, { status: 400 });
+  }
+
+  const result = await createSongAndStartGeneration({
+    topic,
+    style,
+    story: story || topic
   });
 
-  const draft = await createBirthdayDraft({
-    userId: user.id,
-    story: `Song for ${recipient}. From: ${sender}. Details: ${story}`
-  });
+  if (wantsJson || contentType.includes("application/json")) {
+    return Response.json({
+      draftId: result.draft.id,
+      jobId: result.job.id,
+      status: result.job.status,
+      tracks: "tracks" in result.job ? result.job.tracks : []
+    });
+  }
 
-  redirect(`/api/generate?draftId=${draft.id}`);
+  redirect("/my-songs");
 }

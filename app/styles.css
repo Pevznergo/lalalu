@@ -320,6 +320,12 @@ button:hover,
   transform: translateY(-1px);
 }
 
+button:disabled,
+input:disabled {
+  cursor: not-allowed;
+  opacity: .58;
+}
+
 button:active,
 .button:active,
 .starter-card:active,
@@ -478,6 +484,122 @@ button:focus-visible,
   color: #9b8f83;
   font-size: 12px;
   line-height: 1.4;
+}
+
+.songs-page {
+  max-width: 1040px;
+}
+
+.songs-grid {
+  display: grid;
+  gap: 14px;
+  padding-top: 18px;
+}
+
+.empty-state {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+}
+
+.empty-state h1 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.05;
+}
+
+.song-card {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid #e5d8c8;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(94, 67, 42, .06);
+}
+
+.song-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.song-card h2 {
+  margin: 2px 0 0;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.song-status {
+  margin: 0;
+  color: #2a7a57;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.song-card-failed .song-status,
+.song-card-needs_support .song-status {
+  color: #b93526;
+}
+
+.song-count {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #fff4ec;
+  color: #a94f3f;
+  font-weight: 900;
+}
+
+.song-style {
+  margin: 0;
+  color: #66584e;
+}
+
+.progress-line {
+  position: relative;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #f1e4d4;
+}
+
+.progress-line span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 42%;
+  border-radius: inherit;
+  background: #f07a67;
+  animation: progressSlide 1.6s ease-in-out infinite;
+}
+
+.track-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.track-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 8px;
+  background: #2d2825;
+  color: #fff;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@keyframes progressSlide {
+  0% { transform: translateX(-110%); }
+  50% { transform: translateX(70%); }
+  100% { transform: translateX(250%); }
 }
 
 .panel,

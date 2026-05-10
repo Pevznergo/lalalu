@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
+import { config } from "@/core/config";
 import { db } from "@/core/db";
 import { grantCredits, getBalance } from "@/core/credits";
 import { enqueueGeneration } from "@/core/generation";
+import { processGenerationJob } from "@/worker/process-job";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -17,15 +19,19 @@ export async function GET(request: Request) {
       userId: draft.userId,
       credits: 1,
       reason: "beta_auto_grant",
-      idempotencyKey: `beta:auto:${draft.userId}`
+      idempotencyKey: `beta:auto:${draft.userId}:${draftId}`
     });
   }
 
-  await enqueueGeneration({
+  const job = await enqueueGeneration({
     userId: draft.userId,
     draftId,
     idempotencyKey: `web:${draftId}`
   });
+
+  if (config.musicProvider === "mock") {
+    await processGenerationJob(job.id);
+  }
 
   redirect("/my-songs");
 }
